@@ -1,0 +1,20 @@
+[project]
+name = "django-online-store"
+version = "0.1.0"
+description = "Интернет-магазин на Django"
+authors = [
+    {name = "Liamhoulet10031988",email = "liam10031988@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django (>=6.0.7,<7.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
