@@ -1,7 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs
 
-
 HOST_NAME = "localhost"
 SERVER_PORT = 8080
 
