@@ -25,18 +25,24 @@
             <div class="card mb-4 box-shadow">
                 <div class="card-body">
                     <table class="table table-striped">
-                        <tr>
-                            <td class="w-25">Страна</td>
-                            <td>USA</td>
-                        </tr>
-                        <tr>
-                            <td class="w-25">ИНН</td>
-                            <td>91-1144442</td>
-                        </tr>
-                        <tr>
-                            <td class="w-25">Адрес</td>
-                            <td>Redmond,WA,98052-6399</td>
-                        </tr>
+                        {% for contact in contacts %}
+                            <tr>
+                                <td class="w-25">Страна</td>
+                                <td>{{ contact.country }}</td>
+                            </tr>
+                            <tr>
+                                <td class="w-25">ИНН</td>
+                                <td>{{ contact.inn }}</td>
+                            </tr>
+                            <tr>
+                                <td class="w-25">Адрес</td>
+                                <td>{{ contact.address }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2">Контактные данные пока не добавлены.</td>
+                            </tr>
+                        {% endfor %}
                     </table>
                 </div>
             </div>
