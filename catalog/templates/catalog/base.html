@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Skystore{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+{% include 'catalog/includes/menu.html' %}
+
+<main class="flex-grow-1">
+    {% block content %}
+    {% endblock %}
+</main>
+
+<footer class="border-top mt-5 py-4">
+    <div
+        class="container d-flex flex-column flex-sm-row gap-2 justify-content-between"
+    >
+        <span>Skystore</span>
+        <span class="text-muted">Учебный интернет-магазин</span>
+    </div>
+</footer>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
