@@ -1,21 +1,25 @@
 {% extends 'catalog/base.html' %}
 
-{% block title %}Добавление товара{% endblock %}
+{% block title %}
+    {% if object %}Изменение статьи{% else %}Новая статья{% endif %}
+{% endblock %}
 
 {% block content %}
 <section class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-12 col-lg-7">
-            <h1 class="mb-4">Добавление товара</h1>
+        <div class="col-12 col-lg-8">
+            <h1 class="mb-4">
+                {% if object %}Изменение статьи{% else %}Новая статья{% endif %}
+            </h1>
 
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form.as_p }}
 
                 <button type="submit" class="btn btn-primary">
-                    Сохранить товар
+                    Сохранить
                 </button>
-                <a href="{% url 'catalog:home' %}"
+                <a href="{% url 'blog:blog_list' %}"
                    class="btn btn-secondary">
                     Отмена
                 </a>
