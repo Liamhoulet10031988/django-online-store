@@ -1,12 +1,11 @@
 from django.http import HttpResponse
-from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views import View
 from django.views.generic import (
     CreateView,
     DeleteView,
     DetailView,
     ListView,
+    TemplateView,
     UpdateView,
 )
 
@@ -73,17 +72,18 @@ class ProductDeleteView(DeleteView):
     success_url = reverse_lazy("catalog:home")
 
 
-class ContactsView(View):
+class ContactsView(TemplateView):
     """Показывает контакты и принимает данные формы."""
 
-    def get(self, request):
-        """Обрабатывает открытие страницы контактов."""
-        contacts_list = Contact.objects.all()
-        context = {"contacts": contacts_list}
+    template_name = "catalog/contacts.html"
 
-        return render(request, "catalog/contacts.html", context)
+    def get_context_data(self, **kwargs):
+        """Добавляет контакты в контекст шаблона."""
+        context = super().get_context_data(**kwargs)
+        context["contacts"] = Contact.objects.all()
+        return context
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """Обрабатывает отправку формы обратной связи."""
         name = request.POST.get("name")
         phone = request.POST.get("phone")
