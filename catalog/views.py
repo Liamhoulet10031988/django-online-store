@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -26,7 +27,7 @@ class ProductListView(ListView):
         return super().get_queryset().order_by("pk")
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     """Показывает подробную информацию об одном товаре."""
 
     model = Product
@@ -34,7 +35,7 @@ class ProductDetailView(DetailView):
     context_object_name = "product"
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     """Создаёт новый товар через ProductForm."""
 
     model = Product
@@ -49,7 +50,7 @@ class ProductCreateView(CreateView):
         )
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     """Изменяет существующий товар через ProductForm."""
 
     model = Product
@@ -64,7 +65,7 @@ class ProductUpdateView(UpdateView):
         )
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     """Удаляет товар после подтверждения."""
 
     model = Product
