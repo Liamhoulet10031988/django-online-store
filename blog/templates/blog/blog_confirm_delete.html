@@ -1,0 +1,27 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Удаление статьи{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-7">
+            <h1 class="mb-3">Удаление статьи</h1>
+            <p>
+                Удалить статью «{{ object.title }}»?
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    Удалить
+                </button>
+                <a href="{% url 'blog:blog_detail' object.pk %}"
+                   class="btn btn-secondary">
+                    Отмена
+                </a>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

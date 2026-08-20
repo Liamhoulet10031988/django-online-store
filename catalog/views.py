@@ -1,87 +1,66 @@
-from django.core.paginator import Paginator
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import render
+from django.urls import reverse
+from django.views import View
+from django.views.generic import CreateView, DetailView, ListView
 
-from catalog.models import Category, Contact, Product
-
-
-def home(request):
-    """Возвращает главную страницу с товарами."""
-    products = Product.objects.all()
-    products = products.order_by("pk")
-    paginator = Paginator(products, 6)
-    page_number = request.GET.get("page")
-    products_page = paginator.get_page(page_number)
-    context = {
-        "products": products_page,
-        "page_obj": products_page,
-    }
-
-    return render(request, "catalog/home.html", context)
+from catalog.models import Contact, Product
 
 
-def product_detail(request, pk):
-    """Возвращает страницу с подробной информацией о товаре."""
-    product = Product.objects.get(pk=pk)
-    context = {"product": product}
+class ProductListView(ListView):
+    """Показывает список товаров интернет-магазина."""
 
-    return render(request, "catalog/product_detail.html", context)
+    model = Product
+    template_name = "catalog/home.html"
+    context_object_name = "products"
+    paginate_by = 6
 
-
-def product_create(request):
-    """Показывает форму и сохраняет новый товар."""
-    categories = Category.objects.all()
-    error = None
-
-    if request.method == "POST":
-        name = request.POST.get("name", "").strip()
-        description = request.POST.get("description", "").strip()
-        price = request.POST.get("price", "").strip()
-        category_id = request.POST.get("category", "").strip()
-        image = request.FILES.get("image")
-
-        if (
-            name == ""
-            or description == ""
-            or price == ""
-            or category_id == ""
-            or image is None
-        ):
-            error = "Заполните все поля формы."
-        else:
-            try:
-                price_number = int(price)
-                category = Category.objects.get(pk=category_id)
-            except (ValueError, Category.DoesNotExist):
-                error = "Проверьте цену и выбранную категорию."
-            else:
-                if price_number <= 0:
-                    error = "Цена должна быть больше нуля."
-                else:
-                    product = Product.objects.create(
-                        name=name,
-                        description=description,
-                        image=image,
-                        category=category,
-                        price=price_number,
-                    )
-                    return redirect(
-                        "catalog:product_detail",
-                        pk=product.pk,
-                    )
-
-    context = {
-        "categories": categories,
-        "error": error,
-    }
-    return render(request, "catalog/product_form.html", context)
+    def get_queryset(self):
+        """Возвращает товары, отсортированные по идентификатору."""
+        return super().get_queryset().order_by("pk")
 
 
-def contacts(request):
+class ProductDetailView(DetailView):
+    """Показывает подробную информацию об одном товаре."""
+
+    model = Product
+    template_name = "catalog/product_detail.html"
+    context_object_name = "product"
+
+
+class ProductCreateView(CreateView):
+    """Создает новый товар через форму Django."""
+
+    model = Product
+    fields = (
+        "name",
+        "description",
+        "image",
+        "category",
+        "price",
+    )
+    template_name = "catalog/product_form.html"
+
+    def get_success_url(self):
+        """Возвращает адрес страницы созданного товара."""
+        return reverse(
+            "catalog:product_detail",
+            kwargs={"pk": self.object.pk},
+        )
+
+
+class ContactsView(View):
     """Показывает контакты и принимает данные формы."""
-    contacts_list = Contact.objects.all()
 
-    if request.method == "POST":
+    def get(self, request):
+        """Обрабатывает открытие страницы контактов."""
+        contacts_list = Contact.objects.all()
+        context = {"contacts": contacts_list}
+
+        return render(request, "catalog/contacts.html", context)
+
+    def post(self, request):
+        """Обрабатывает отправку формы обратной связи."""
         name = request.POST.get("name")
         phone = request.POST.get("phone")
         message = request.POST.get("message")
@@ -92,9 +71,6 @@ def contacts(request):
         print(f"Сообщение: {message}")
 
         return HttpResponse(
-            f"Спасибо, {name}! Ваше сообщение успешно отправлено."
+            f"Спасибо, {name}! "
+            "Ваше сообщение успешно отправлено."
         )
-
-    context = {"contacts": contacts_list}
-
-    return render(request, "catalog/contacts.html", context)
