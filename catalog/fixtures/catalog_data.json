@@ -1,0 +1,91 @@
+[
+  {
+    "model": "catalog.category",
+    "pk": 1,
+    "fields": {
+      "name": "Смартфоны",
+      "description": "Мобильные телефоны и аксессуары"
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 2,
+    "fields": {
+      "name": "Ноутбуки",
+      "description": "Портативные компьютеры"
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 3,
+    "fields": {
+      "name": "Аксессуары",
+      "description": "Аксессуары для электроники"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 1,
+    "fields": {
+      "name": "iPhone 15",
+      "description": "Смартфон Apple",
+      "image": "",
+      "category": 1,
+      "price": 120000,
+      "created_at": "2026-08-01T10:00:00Z",
+      "updated_at": "2026-08-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 2,
+    "fields": {
+      "name": "Samsung Galaxy S24",
+      "description": "Смартфон Samsung",
+      "image": "",
+      "category": 1,
+      "price": 95000,
+      "created_at": "2026-08-01T10:05:00Z",
+      "updated_at": "2026-08-01T10:05:00Z"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 3,
+    "fields": {
+      "name": "MacBook Air",
+      "description": "Ноутбук Apple",
+      "image": "",
+      "category": 2,
+      "price": 150000,
+      "created_at": "2026-08-01T10:10:00Z",
+      "updated_at": "2026-08-01T10:10:00Z"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 4,
+    "fields": {
+      "name": "Lenovo IdeaPad",
+      "description": "Ноутбук Lenovo",
+      "image": "",
+      "category": 2,
+      "price": 78000,
+      "created_at": "2026-08-01T10:15:00Z",
+      "updated_at": "2026-08-01T10:15:00Z"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 5,
+    "fields": {
+      "name": "Беспроводные наушники",
+      "description": "Наушники с зарядным футляром",
+      "image": "",
+      "category": 3,
+      "price": 12000,
+      "created_at": "2026-08-01T10:20:00Z",
+      "updated_at": "2026-08-01T10:20:00Z"
+    }
+  }
+]
