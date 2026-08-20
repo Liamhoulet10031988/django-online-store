@@ -1,9 +1,15 @@
 from django.http import HttpResponse
-from django.shortcuts import render
-from django.urls import reverse
-from django.views import View
-from django.views.generic import CreateView, DetailView, ListView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
 
+from catalog.forms import ProductForm
 from catalog.models import Contact, Product
 
 
@@ -29,16 +35,10 @@ class ProductDetailView(DetailView):
 
 
 class ProductCreateView(CreateView):
-    """Создает новый товар через форму Django."""
+    """Создаёт новый товар через ProductForm."""
 
     model = Product
-    fields = (
-        "name",
-        "description",
-        "image",
-        "category",
-        "price",
-    )
+    form_class = ProductForm
     template_name = "catalog/product_form.html"
 
     def get_success_url(self):
@@ -49,17 +49,41 @@ class ProductCreateView(CreateView):
         )
 
 
-class ContactsView(View):
+class ProductUpdateView(UpdateView):
+    """Изменяет существующий товар через ProductForm."""
+
+    model = Product
+    form_class = ProductForm
+    template_name = "catalog/product_form.html"
+
+    def get_success_url(self):
+        """Возвращает адрес страницы изменённого товара."""
+        return reverse(
+            "catalog:product_detail",
+            kwargs={"pk": self.object.pk},
+        )
+
+
+class ProductDeleteView(DeleteView):
+    """Удаляет товар после подтверждения."""
+
+    model = Product
+    template_name = "catalog/product_confirm_delete.html"
+    success_url = reverse_lazy("catalog:home")
+
+
+class ContactsView(TemplateView):
     """Показывает контакты и принимает данные формы."""
 
-    def get(self, request):
-        """Обрабатывает открытие страницы контактов."""
-        contacts_list = Contact.objects.all()
-        context = {"contacts": contacts_list}
+    template_name = "catalog/contacts.html"
 
-        return render(request, "catalog/contacts.html", context)
+    def get_context_data(self, **kwargs):
+        """Добавляет контакты в контекст шаблона."""
+        context = super().get_context_data(**kwargs)
+        context["contacts"] = Contact.objects.all()
+        return context
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """Обрабатывает отправку формы обратной связи."""
         name = request.POST.get("name")
         phone = request.POST.get("phone")

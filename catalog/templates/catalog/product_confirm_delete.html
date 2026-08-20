@@ -1,0 +1,30 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Удаление товара{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-7">
+            <h1 class="mb-3">Удаление товара</h1>
+            <p class="lead">
+                Вы действительно хотите удалить товар
+                «{{ object.name }}»?
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    Удалить
+                </button>
+                <a
+                    href="{% url 'catalog:product_detail' object.pk %}"
+                    class="btn btn-secondary"
+                >
+                    Отмена
+                </a>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

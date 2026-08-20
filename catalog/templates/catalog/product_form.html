@@ -1,24 +1,45 @@
 {% extends 'catalog/base.html' %}
 
-{% block title %}Добавление товара{% endblock %}
+{% block title %}
+    {% if object %}Изменение товара{% else %}Добавление товара{% endif %}
+{% endblock %}
 
 {% block content %}
 <section class="container py-5">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-7">
-            <h1 class="mb-4">Добавление товара</h1>
+            <h1 class="mb-4">
+                {% if object %}
+                    Изменение товара
+                {% else %}
+                    Добавление товара
+                {% endif %}
+            </h1>
 
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
+                {{ form.non_field_errors }}
                 {{ form.as_p }}
 
                 <button type="submit" class="btn btn-primary">
                     Сохранить товар
                 </button>
-                <a href="{% url 'catalog:home' %}"
-                   class="btn btn-secondary">
-                    Отмена
-                </a>
+
+                {% if object %}
+                    <a
+                        href="{% url 'catalog:product_detail' object.pk %}"
+                        class="btn btn-secondary"
+                    >
+                        Отмена
+                    </a>
+                {% else %}
+                    <a
+                        href="{% url 'catalog:home' %}"
+                        class="btn btn-secondary"
+                    >
+                        Отмена
+                    </a>
+                {% endif %}
             </form>
         </div>
     </div>

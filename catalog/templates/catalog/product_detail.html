@@ -48,6 +48,18 @@
             <a href="{% url 'catalog:home' %}" class="btn btn-primary mt-3">
                 Вернуться в каталог
             </a>
+            <a
+                href="{% url 'catalog:product_update' product.pk %}"
+                class="btn btn-warning mt-3"
+            >
+                Изменить
+            </a>
+            <a
+                href="{% url 'catalog:product_delete' product.pk %}"
+                class="btn btn-danger mt-3"
+            >
+                Удалить
+            </a>
         </div>
     </div>
 </section>
