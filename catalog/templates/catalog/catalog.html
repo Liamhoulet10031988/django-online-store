@@ -1,115 +1,15 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Каталог</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-</head>
-<body>
-<div class="container-fluid">
-    <div class="row min-vh-100">
-        <aside class="col-3 col-md-2 p-3 text-bg-dark d-flex flex-column">
-            <header>
-                <a class="text-white text-decoration-none fs-4" href="{% url 'catalog:home' %}">
-                    B Магазин
-                </a>
-            </header>
+{% extends 'catalog/base.html' %}
 
-            <hr>
+{% block title %}Каталог{% endblock %}
 
-            <nav class="nav nav-pills flex-column mb-auto">
-                <a class="nav-link" href="{% url 'catalog:home' %}">Главная</a>
-                <a class="nav-link active" href="#">Каталог</a>
-                <a class="nav-link text-white" href="#">Категории</a>
-                <a class="nav-link text-white" href="{% url 'catalog:contacts' %}">Контакты</a>
-            </nav>
-
-            <footer class="mt-auto">
-                <hr>
-                <p class="mb-1">Профиль</p>
-                <p class="mb-1">Выход</p>
-                <strong>Пользователь</strong>
-            </footer>
-        </aside>
-
-        <main class="col-9 col-md-10 py-5">
-            <div class="container">
-                <h1 class="text-center mb-5">Каталог</h1>
-
-                <div class="row g-4">
-                    <div class="col-12 col-lg-6">
-                        <div class="card h-100">
-                            <div class="bg-secondary text-white text-center py-5">
-                                Изображение товара
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text">
-                                    Описание товара. Здесь находится информация
-                                    о его характеристиках и преимуществах.
-                                </p>
-                                <button class="btn btn-outline-secondary">Посмотреть</button>
-                                <button class="btn btn-outline-secondary">Изменить</button>
-                            </div>
-                            <div class="card-footer text-end">9 минут</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-6">
-                        <div class="card h-100">
-                            <div class="bg-secondary text-white text-center py-5">
-                                Изображение товара
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text">
-                                    Описание товара. Здесь находится информация
-                                    о его характеристиках и преимуществах.
-                                </p>
-                                <button class="btn btn-outline-secondary">Посмотреть</button>
-                                <button class="btn btn-outline-secondary">Изменить</button>
-                            </div>
-                            <div class="card-footer text-end">9 минут</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-6">
-                        <div class="card h-100">
-                            <div class="bg-secondary text-white text-center py-5">
-                                Изображение товара
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text">
-                                    Описание товара. Здесь находится информация
-                                    о его характеристиках и преимуществах.
-                                </p>
-                                <button class="btn btn-outline-secondary">Посмотреть</button>
-                                <button class="btn btn-outline-secondary">Изменить</button>
-                            </div>
-                            <div class="card-footer text-end">9 минут</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-6">
-                        <div class="card h-100">
-                            <div class="bg-secondary text-white text-center py-5">
-                                Изображение товара
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text">
-                                    Описание товара. Здесь находится информация
-                                    о его характеристиках и преимуществах.
-                                </p>
-                                <button class="btn btn-outline-secondary">Посмотреть</button>
-                                <button class="btn btn-outline-secondary">Изменить</button>
-                            </div>
-                            <div class="card-footer text-end">9 минут</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-</div>
-<script src="/static/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% block content %}
+<section class="container py-5">
+    <h1 class="mb-4">Каталог</h1>
+    <p>
+        Основной динамический каталог доступен на главной странице Skystore.
+    </p>
+    <a href="{% url 'catalog:home' %}" class="btn btn-primary">
+        Перейти к товарам
+    </a>
+</section>
+{% endblock %}

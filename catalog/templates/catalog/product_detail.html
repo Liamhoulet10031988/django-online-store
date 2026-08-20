@@ -1,0 +1,54 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <div class="row g-5 align-items-start">
+        <div class="col-12 col-lg-6">
+            {% if product.image %}
+                <img
+                    src="{{ product.image.url }}"
+                    class="img-fluid rounded border"
+                    alt="{{ product.name }}"
+                >
+            {% else %}
+                <div
+                    class="d-flex align-items-center justify-content-center bg-light border rounded text-muted"
+                    style="min-height: 360px;"
+                >
+                    Изображение отсутствует
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <p class="text-muted mb-2">
+                Категория: {{ product.category.name }}
+            </p>
+            <h1 class="mb-3">{{ product.name }}</h1>
+            <p class="fs-3 fw-bold">{{ product.price }} руб.</p>
+            <p>{{ product.description|default:"Описание отсутствует" }}</p>
+
+            <dl class="row mt-4">
+                <dt class="col-sm-5">Идентификатор</dt>
+                <dd class="col-sm-7">{{ product.pk }}</dd>
+
+                <dt class="col-sm-5">Дата создания</dt>
+                <dd class="col-sm-7">
+                    {{ product.created_at|date:"d.m.Y H:i" }}
+                </dd>
+
+                <dt class="col-sm-5">Последнее изменение</dt>
+                <dd class="col-sm-7">
+                    {{ product.updated_at|date:"d.m.Y H:i" }}
+                </dd>
+            </dl>
+
+            <a href="{% url 'catalog:home' %}" class="btn btn-primary mt-3">
+                Вернуться в каталог
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

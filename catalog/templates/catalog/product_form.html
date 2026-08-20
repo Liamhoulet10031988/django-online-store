@@ -1,0 +1,99 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Добавление товара{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-7">
+            <h1 class="mb-4">Добавление товара</h1>
+
+            {% if error %}
+                <div class="alert alert-danger">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Название</label>
+                    <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        class="form-control"
+                        required
+                    >
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">
+                        Описание
+                    </label>
+                    <textarea
+                        name="description"
+                        id="description"
+                        class="form-control"
+                        rows="5"
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image" class="form-label">
+                        Изображение
+                    </label>
+                    <input
+                        type="file"
+                        name="image"
+                        id="image"
+                        class="form-control"
+                        accept="image/*"
+                        required
+                    >
+                </div>
+
+                <div class="mb-3">
+                    <label for="category" class="form-label">
+                        Категория
+                    </label>
+                    <select
+                        name="category"
+                        id="category"
+                        class="form-select"
+                        required
+                    >
+                        <option value="">Выберите категорию</option>
+                        {% for category in categories %}
+                            <option value="{{ category.pk }}">
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="price" class="form-label">Цена</label>
+                    <input
+                        type="number"
+                        name="price"
+                        id="price"
+                        class="form-control"
+                        min="1"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Сохранить товар
+                </button>
+                <a href="{% url 'catalog:home' %}" class="btn btn-secondary">
+                    Отмена
+                </a>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

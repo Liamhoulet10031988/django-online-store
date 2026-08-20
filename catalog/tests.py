@@ -103,19 +103,14 @@ class ViewsTest(TestCase):
                 price=1000 + number,
             )
 
-    def test_home_page_returns_last_five_products(self) -> None:
-        output = StringIO()
-
-        with redirect_stdout(output):
-            response = self.client.get(reverse("catalog:home"))
+    def test_home_page_returns_products(self) -> None:
+        response = self.client.get(reverse("catalog:home"))
 
         products = list(response.context["products"])
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(products), 5)
-        self.assertEqual(products[0].name, "Товар 5")
-        self.assertNotIn("Товар 0", output.getvalue())
-        self.assertIn("Товар 5", output.getvalue())
+        self.assertEqual(len(products), 6)
+        self.assertEqual(products[0].name, "Товар 0")
 
     def test_contacts_page_contains_database_contacts(self) -> None:
         Contact.objects.create(
