@@ -28,14 +28,18 @@
                    class="btn btn-primary">
                     К списку статей
                 </a>
-                <a href="{% url 'blog:blog_update' blog.pk %}"
-                   class="btn btn-outline-secondary">
-                    Изменить
-                </a>
-                <a href="{% url 'blog:blog_delete' blog.pk %}"
-                   class="btn btn-outline-danger">
-                    Удалить
-                </a>
+                {% if perms.blog.change_blog %}
+                    <a href="{% url 'blog:blog_update' blog.pk %}"
+                       class="btn btn-outline-secondary">
+                        Изменить
+                    </a>
+                {% endif %}
+                {% if perms.blog.delete_blog %}
+                    <a href="{% url 'blog:blog_delete' blog.pk %}"
+                       class="btn btn-outline-danger">
+                        Удалить
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>

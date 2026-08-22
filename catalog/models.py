@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -42,6 +43,17 @@ class Product(models.Model):
         verbose_name="Категория",
     )
     price = models.PositiveIntegerField(verbose_name="Цена за покупку")
+    is_published = models.BooleanField(
+        default=False,
+        verbose_name="Опубликовано",
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Владелец",
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата создания",
@@ -58,6 +70,12 @@ class Product(models.Model):
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
+        permissions = [
+            (
+                "can_unpublish_product",
+                "Может отменять публикацию товара",
+            ),
+        ]
 
 
 class Contact(models.Model):

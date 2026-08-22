@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from catalog.models import Product
+from common.forms import FormStyleMixin
 
 FORBIDDEN_WORDS = (
     "казино",
@@ -23,7 +24,7 @@ ALLOWED_IMAGE_TYPES = (
 MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
 
-class ProductForm(forms.ModelForm):
+class ProductForm(FormStyleMixin, forms.ModelForm):
     """Форма создания и изменения товара."""
 
     price = forms.IntegerField(
@@ -38,25 +39,8 @@ class ProductForm(forms.ModelForm):
             "image",
             "category",
             "price",
+            "is_published",
         )
-
-    def __init__(self, *args, **kwargs):
-        """Добавляет полям формы классы Bootstrap."""
-        super().__init__(*args, **kwargs)
-
-        for field in self.fields.values():
-            if isinstance(field.widget, forms.CheckboxInput):
-                field.widget.attrs.update({
-                    "class": "form-check-input",
-                })
-            elif isinstance(field.widget, forms.Select):
-                field.widget.attrs.update({
-                    "class": "form-select",
-                })
-            else:
-                field.widget.attrs.update({
-                    "class": "form-control",
-                })
 
     def clean_name(self):
         """Запрещает нежелательные слова в названии товара."""

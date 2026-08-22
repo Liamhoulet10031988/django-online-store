@@ -1,4 +1,8 @@
 from django.conf import settings
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+)
 from django.core.mail import send_mail
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -50,9 +54,14 @@ class BlogDetailView(DetailView):
         return blog
 
 
-class BlogCreateView(CreateView):
-    """Создает новую статью."""
+class BlogCreateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    CreateView,
+):
+    """Создаёт новую статью при наличии права доступа."""
 
+    permission_required = "blog.add_blog"
     model = Blog
     fields = (
         "title",
@@ -64,9 +73,14 @@ class BlogCreateView(CreateView):
     success_url = reverse_lazy("blog:blog_list")
 
 
-class BlogUpdateView(UpdateView):
-    """Изменяет существующую статью."""
+class BlogUpdateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    UpdateView,
+):
+    """Изменяет статью при наличии права доступа."""
 
+    permission_required = "blog.change_blog"
     model = Blog
     fields = (
         "title",
@@ -84,9 +98,14 @@ class BlogUpdateView(UpdateView):
         )
 
 
-class BlogDeleteView(DeleteView):
-    """Удаляет статью после подтверждения."""
+class BlogDeleteView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    DeleteView,
+):
+    """Удаляет статью при наличии права доступа."""
 
+    permission_required = "blog.delete_blog"
     model = Blog
     template_name = "blog/blog_confirm_delete.html"
     success_url = reverse_lazy("blog:blog_list")
