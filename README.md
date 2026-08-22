@@ -46,6 +46,14 @@ Python-разработки. Проект хранит товары, катег�
 - вход, выход и пользовательская сессия;
 - ограничение доступа к просмотру и управлению товарами;
 - редактирование профиля и загрузка аватара;
+- статус публикации и владелец товара;
+- автоматическое назначение владельца при создании товара;
+- проверка прав владельца и модератора для изменения и удаления товаров;
+- группа «Модератор продуктов» с правами модерации и удаления;
+- группа «Контент-менеджер» с правами управления блогом;
+- проверка разрешений в CBV и шаблонах;
+- общий `FormStyleMixin` для Bootstrap-оформления полей форм;
+- команда создания групп и назначения прав.
 
 ## Структура проекта
 
@@ -54,6 +62,7 @@ config/                         - настройки и главные марш�
 catalog/                        - каталог товаров и страница контактов
 blog/                           - статьи блога и CRUD-контроллеры
 users/                          - пользователи, регистрация, вход и профиль
+common/                         - общие примеси Python, включая FormStyleMixin
 catalog/migrations/             - миграции моделей каталога
 blog/migrations/                - миграции модели блога
 users/migrations/               - миграции модели пользователя
@@ -94,6 +103,12 @@ poetry run python manage.py migrate
 poetry run python manage.py load_products
 ```
 
+Создать учебные группы и назначить им права:
+
+```bash
+poetry run python manage.py create_groups
+```
+
 ## Запуск
 
 ```bash
@@ -119,7 +134,7 @@ http://127.0.0.1:8000/admin/
 ```bash
 poetry run python manage.py check
 poetry run python manage.py makemigrations --check
-poetry run flake8 .
+poetry run flake8 catalog blog users common config --exclude="*/migrations/*"
 poetry run isort --check-only .
 ```
 

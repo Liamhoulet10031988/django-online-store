@@ -6,10 +6,12 @@
 <section class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">Блог</h1>
-        <a href="{% url 'blog:blog_create' %}"
-           class="btn btn-primary">
-            Добавить статью
-        </a>
+        {% if perms.blog.add_blog %}
+            <a href="{% url 'blog:blog_create' %}"
+               class="btn btn-primary">
+                Добавить статью
+            </a>
+        {% endif %}
     </div>
 
     <div class="row g-4">
@@ -41,18 +43,22 @@
                             >
                                 Читать
                             </a>
-                            <a
-                                href="{% url 'blog:blog_update' blog.pk %}"
-                                class="btn btn-outline-secondary"
-                            >
-                                Изменить
-                            </a>
-                            <a
-                                href="{% url 'blog:blog_delete' blog.pk %}"
-                                class="btn btn-outline-danger"
-                            >
-                                Удалить
-                            </a>
+                            {% if perms.blog.change_blog %}
+                                <a
+                                    href="{% url 'blog:blog_update' blog.pk %}"
+                                    class="btn btn-outline-secondary"
+                                >
+                                    Изменить
+                                </a>
+                            {% endif %}
+                            {% if perms.blog.delete_blog %}
+                                <a
+                                    href="{% url 'blog:blog_delete' blog.pk %}"
+                                    class="btn btn-outline-danger"
+                                >
+                                    Удалить
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </article>

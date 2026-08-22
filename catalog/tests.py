@@ -38,6 +38,8 @@ class ProductModelTest(TestCase):
 
         self.assertEqual(product.category, category)
         self.assertEqual(product.category_id, category.pk)
+        self.assertFalse(product.is_published)
+        self.assertIsNone(product.owner)
         self.assertEqual(str(product), "MacBook Air")
         self.assertIsNotNone(product.created_at)
         self.assertIsNotNone(product.updated_at)
@@ -75,9 +77,19 @@ class AdminTest(TestCase):
     def test_product_admin_settings(self) -> None:
         self.assertEqual(
             ProductAdmin.list_display,
-            ("id", "name", "price", "category"),
+            (
+                "id",
+                "name",
+                "price",
+                "category",
+                "is_published",
+                "owner",
+            ),
         )
-        self.assertEqual(ProductAdmin.list_filter, ("category",))
+        self.assertEqual(
+            ProductAdmin.list_filter,
+            ("category", "is_published"),
+        )
         self.assertEqual(
             ProductAdmin.search_fields,
             ("name", "description"),
