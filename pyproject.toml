@@ -13,7 +13,8 @@ dependencies = [
     "pillow (>=12.3.0,<13.0.0)",
     "python-dotenv (>=1.2.2,<2.0.0)",
     "ipython (>=9.16.0,<10.0.0)",
-    "redis (>=8.1.0,<9.0.0)"
+    "redis (>=8.1.0,<9.0.0)",
+    "djangorestframework (>=3.16.1,<4.0.0)"
 ]
 
 

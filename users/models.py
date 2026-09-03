@@ -27,6 +27,12 @@ class User(AbstractUser):
         null=True,
         verbose_name="Страна",
     )
+    city = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Город",
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]

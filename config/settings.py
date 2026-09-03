@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "catalog",
     "blog",
     "users",
+    "rest_framework",
+    "materials",
 ]
 
 AUTH_USER_MODEL = "users.User"

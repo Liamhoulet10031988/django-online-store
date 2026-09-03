@@ -4,9 +4,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.urls import reverse_lazy
 from django.views.generic import FormView, UpdateView
+from rest_framework import generics
 
 from users.forms import UserProfileForm, UserRegisterForm
 from users.models import User
+from users.serializers import UserSerializer
 
 
 class RegisterView(FormView):
@@ -44,3 +46,10 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         """Возвращает пользователя текущего HTTP-запроса."""
         return self.request.user
+
+
+class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    """Возвращает или изменяет профиль через API."""
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer

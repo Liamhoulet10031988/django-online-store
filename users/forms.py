@@ -33,5 +33,6 @@ class UserProfileForm(FormStyleMixin, forms.ModelForm):
             "last_name",
             "avatar",
             "phone_number",
+            "city",
             "country",
         )
