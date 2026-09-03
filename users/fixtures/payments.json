@@ -1,0 +1,68 @@
+[
+  {
+    "model": "users.user",
+    "pk": 10001,
+    "fields": {
+      "password": "!",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "payment_demo_user",
+      "first_name": "Учебный",
+      "last_name": "Пользователь",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-09-03T09:00:00Z",
+      "email": "payment_demo@example.com",
+      "avatar": null,
+      "phone_number": null,
+      "country": "Россия",
+      "city": "Москва",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "materials.course",
+    "pk": 10001,
+    "fields": {
+      "title": "Основы Django REST framework",
+      "preview": null,
+      "description": "Учебный курс для проверки платежей"
+    }
+  },
+  {
+    "model": "materials.lesson",
+    "pk": 10001,
+    "fields": {
+      "course": 10001,
+      "title": "Сериализаторы",
+      "description": "Учебный урок для проверки платежей",
+      "preview": null,
+      "video_url": ""
+    }
+  },
+  {
+    "model": "users.payment",
+    "pk": 10001,
+    "fields": {
+      "user": 10001,
+      "payment_date": "2026-09-01T10:00:00Z",
+      "paid_course": 10001,
+      "paid_lesson": null,
+      "amount": "15000.00",
+      "payment_method": "cash"
+    }
+  },
+  {
+    "model": "users.payment",
+    "pk": 10002,
+    "fields": {
+      "user": 10001,
+      "payment_date": "2026-09-02T11:30:00Z",
+      "paid_course": null,
+      "paid_lesson": 10001,
+      "amount": "2500.00",
+      "payment_method": "transfer"
+    }
+  }
+]

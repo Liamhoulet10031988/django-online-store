@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "blog",
     "users",
     "rest_framework",
+    "django_filters",
     "materials",
 ]
 
