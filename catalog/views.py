@@ -2,8 +2,12 @@ from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     UserPassesTestMixin,
 )
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -14,7 +18,11 @@ from django.views.generic import (
 )
 
 from catalog.forms import ProductForm
-from catalog.models import Contact, Product
+from catalog.models import Category, Contact, Product
+from catalog.services import get_products_by_category
+
+CACHE_TIMEOUT = 60 * 15
+PRODUCTS_CACHE_KEY = "products_list"
 
 
 class ProductListView(ListView):
@@ -27,15 +35,37 @@ class ProductListView(ListView):
 
     def get_queryset(self):
         """Возвращает товары, отсортированные по идентификатору."""
-        return super().get_queryset().order_by("pk")
+        products = cache.get(PRODUCTS_CACHE_KEY)
+
+        if products is None:
+            products = list(super().get_queryset().order_by("pk"))
+            cache.set(PRODUCTS_CACHE_KEY, products, CACHE_TIMEOUT)
+
+        return products
 
 
+@method_decorator(cache_page(CACHE_TIMEOUT), name="dispatch")
+@method_decorator(vary_on_cookie, name="dispatch")
 class ProductDetailView(LoginRequiredMixin, DetailView):
     """Показывает подробную информацию об одном товаре."""
 
     model = Product
     template_name = "catalog/product_detail.html"
     context_object_name = "product"
+
+
+class CategoryProductsView(DetailView):
+    """Показывает все товары выбранной категории."""
+
+    model = Category
+    template_name = "catalog/category_products.html"
+    context_object_name = "category"
+
+    def get_context_data(self, **kwargs):
+        """Передаёт в шаблон товары через сервисную функцию."""
+        context = super().get_context_data(**kwargs)
+        context["products"] = get_products_by_category(self.object)
+        return context
 
 
 class ProductCreateView(LoginRequiredMixin, CreateView):

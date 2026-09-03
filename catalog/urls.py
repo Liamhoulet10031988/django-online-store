@@ -17,6 +17,11 @@ urlpatterns = [
         name="product_detail",
     ),
     path(
+        "categories/<int:pk>/products/",
+        views.CategoryProductsView.as_view(),
+        name="category_products",
+    ),
+    path(
         "products/<int:pk>/update/",
         views.ProductUpdateView.as_view(),
         name="product_update",
