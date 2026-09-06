@@ -5,11 +5,17 @@ from django.core.mail import send_mail
 from django.urls import reverse_lazy
 from django.views.generic import FormView, UpdateView
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics
+from rest_framework import filters, generics, viewsets
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from users.forms import UserProfileForm, UserRegisterForm
 from users.models import Payment, User
-from users.serializers import PaymentSerializer, UserSerializer
+from users.permissions import IsCurrentUser
+from users.serializers import (
+    PaymentSerializer,
+    UserRegistrationSerializer,
+    UserSerializer,
+)
 
 
 class RegisterView(FormView):
@@ -49,11 +55,27 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
         return self.request.user
 
 
-class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    """Возвращает или изменяет профиль через API."""
+class UserViewSet(viewsets.ModelViewSet):
+    """Выполняет CRUD пользователей и регистрацию через API."""
 
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+
+    def get_serializer_class(self):
+        """Использует отдельный сериализатор для регистрации."""
+        if self.action == "create":
+            return UserRegistrationSerializer
+        return UserSerializer
+
+    def get_permissions(self):
+        """Открывает регистрацию и защищает изменение чужого профиля."""
+        if self.action == "create":
+            permission_classes = [AllowAny]
+        elif self.action in ("update", "partial_update", "destroy"):
+            permission_classes = [IsAuthenticated, IsCurrentUser]
+        else:
+            permission_classes = [IsAuthenticated]
+
+        return [permission() for permission in permission_classes]
 
 
 class PaymentListAPIView(generics.ListAPIView):
