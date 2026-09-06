@@ -139,7 +139,10 @@ http://127.0.0.1:8000/admin/
 ```bash
 poetry run python manage.py check
 poetry run python manage.py makemigrations --check
-poetry run flake8 catalog blog users common config --exclude="*/migrations/*"
+poetry run python manage.py test
+poetry run coverage run --source="." manage.py test
+poetry run coverage report -m
+poetry run flake8 catalog blog users common materials config --exclude="*/migrations/*"
 poetry run isort --check-only .
 ```
 
@@ -216,6 +219,7 @@ http://127.0.0.1:8000/api/lessons/<id>/
 http://127.0.0.1:8000/api/users/
 http://127.0.0.1:8000/api/users/<id>/
 http://127.0.0.1:8000/api/payments/
+http://127.0.0.1:8000/api/subscriptions/
 http://127.0.0.1:8000/api/token/
 http://127.0.0.1:8000/api/token/refresh/
 ```
@@ -236,3 +240,35 @@ poetry run python manage.py loaddata moderators
 ```text
 Authorization: Bearer <access-токен>
 ```
+
+## Проверка данных, подписки и пагинация API
+
+Ссылка на видео урока проходит дополнительную проверку: разрешены только URL
+домена `youtube.com`. Некорректный адрес не сохраняется, а API возвращает
+понятное сообщение об ошибке.
+
+Списки курсов и уроков разделены на страницы. По умолчанию возвращается пять
+объектов, а параметр `page_size` позволяет запросить до двадцати:
+
+```text
+GET /api/courses/?page=1&page_size=3
+GET /api/lessons/?page=2&page_size=5
+```
+
+Авторизованный пользователь может добавить или удалить подписку на курс одним
+POST-запросом:
+
+```http
+POST /api/subscriptions/
+
+{
+  "course_id": 1
+}
+```
+
+Если подписки нет, она создаётся. Повторный запрос удаляет её. Сериализатор
+курса возвращает поле `is_subscribed` со значением `true` или `false` для
+текущего пользователя.
+
+API проверяется тестами DRF на основе `APITestCase`. Отчёт покрытия сохраняется
+в `coverage.txt`.

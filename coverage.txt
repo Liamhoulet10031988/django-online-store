@@ -1,0 +1,67 @@
+Name                                                                             Stmts   Miss  Cover   Missing
+--------------------------------------------------------------------------------------------------------------
+blog\__init__.py                                                                     0      0   100%
+blog\admin.py                                                                        0      0   100%
+blog\apps.py                                                                         3      0   100%
+blog\migrations\0001_initial.py                                                      5      0   100%
+blog\migrations\__init__.py                                                          0      0   100%
+blog\models.py                                                                      13      1    92%   33
+blog\tests.py                                                                        0      0   100%
+blog\urls.py                                                                         4      0   100%
+blog\views.py                                                                       41      8    80%   28, 40-54, 95
+catalog\__init__.py                                                                  0      0   100%
+catalog\admin.py                                                                    13      0   100%
+catalog\apps.py                                                                      3      0   100%
+catalog\forms.py                                                                    38     22    42%   47-54, 58-66, 70-77, 81-99
+catalog\management\__init__.py                                                       0      0   100%
+catalog\management\commands\__init__.py                                              0      0   100%
+catalog\management\commands\create_groups.py                                        15     15     0%   1-49
+catalog\management\commands\load_products.py                                        10      0   100%
+catalog\migrations\0001_initial.py                                                   6      0   100%
+catalog\migrations\0002_alter_product_options_product_is_published_and_more.py       6      0   100%
+catalog\migrations\__init__.py                                                       0      0   100%
+catalog\models.py                                                                   35      0   100%
+catalog\services.py                                                                  3      1    67%   8
+catalog\tests.py                                                                    83      0   100%
+catalog\urls.py                                                                      4      0   100%
+catalog\views.py                                                                    78     13    83%   41-42, 66-68, 80-81, 85, 104-105, 114, 133-134
+common\__init__.py                                                                   0      0   100%
+common\forms.py                                                                     10      7    30%   11-23
+config\__init__.py                                                                   0      0   100%
+config\asgi.py                                                                       4      4     0%   10-16
+config\settings.py                                                                  39      0   100%
+config\urls.py                                                                       8      1    88%   29
+config\wsgi.py                                                                       4      4     0%   10-16
+main.py                                                                             34     34     0%   1-56
+manage.py                                                                           11      2    82%   13-14
+materials\__init__.py                                                                0      0   100%
+materials\admin.py                                                                   4      0   100%
+materials\apps.py                                                                    4      0   100%
+materials\migrations\0001_initial.py                                                 6      0   100%
+materials\migrations\0002_course_owner_lesson_owner.py                               6      0   100%
+materials\migrations\0003_subscription.py                                            6      0   100%
+materials\migrations\__init__.py                                                     0      0   100%
+materials\models.py                                                                 27      3    89%   26, 57, 82
+materials\paginators.py                                                              5      0   100%
+materials\permissions.py                                                            10      0   100%
+materials\serializers.py                                                            24      1    96%   37
+materials\tests.py                                                                 190      0   100%
+materials\urls.py                                                                    9      0   100%
+materials\validators.py                                                              6      0   100%
+materials\views.py                                                                  70      1    99%   62
+users\__init__.py                                                                    0      0   100%
+users\admin.py                                                                       5      0   100%
+users\apps.py                                                                        3      0   100%
+users\forms.py                                                                      13      0   100%
+users\migrations\0001_initial.py                                                     8      0   100%
+users\migrations\0002_user_city.py                                                   4      0   100%
+users\migrations\0003_payment.py                                                     6      0   100%
+users\migrations\__init__.py                                                         0      0   100%
+users\models.py                                                                     24      2    92%   42, 92
+users\permissions.py                                                                 4      0   100%
+users\serializers.py                                                                33      2    94%   67, 75
+users\tests.py                                                                      74      0   100%
+users\urls.py                                                                        6      0   100%
+users\views.py                                                                      50      6    88%   30-33, 37, 55
+--------------------------------------------------------------------------------------------------------------
+TOTAL                                                                             1067    127    88%
