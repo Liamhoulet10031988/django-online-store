@@ -6,12 +6,13 @@ from materials.views import (
     LessonListCreateAPIView,
     LessonRetrieveUpdateDestroyAPIView,
 )
-from users.views import PaymentListAPIView, UserRetrieveUpdateAPIView
+from users.views import PaymentListAPIView, UserViewSet
 
 app_name = "materials"
 
 router = DefaultRouter()
 router.register("courses", CourseViewSet, basename="course")
+router.register("users", UserViewSet, basename="user")
 
 urlpatterns = [
     path("", include(router.urls)),
@@ -24,11 +25,6 @@ urlpatterns = [
         "lessons/<int:pk>/",
         LessonRetrieveUpdateDestroyAPIView.as_view(),
         name="lesson-detail",
-    ),
-    path(
-        "users/<int:pk>/",
-        UserRetrieveUpdateAPIView.as_view(),
-        name="user-detail",
     ),
     path(
         "payments/",
