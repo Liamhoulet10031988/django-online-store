@@ -6,7 +6,7 @@ from materials.views import (
     LessonListCreateAPIView,
     LessonRetrieveUpdateDestroyAPIView,
 )
-from users.views import UserRetrieveUpdateAPIView
+from users.views import PaymentListAPIView, UserRetrieveUpdateAPIView
 
 app_name = "materials"
 
@@ -29,5 +29,10 @@ urlpatterns = [
         "users/<int:pk>/",
         UserRetrieveUpdateAPIView.as_view(),
         name="user-detail",
+    ),
+    path(
+        "payments/",
+        PaymentListAPIView.as_view(),
+        name="payment-list",
     ),
 ]

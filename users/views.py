@@ -4,11 +4,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.urls import reverse_lazy
 from django.views.generic import FormView, UpdateView
-from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics
 
 from users.forms import UserProfileForm, UserRegisterForm
-from users.models import User
-from users.serializers import UserSerializer
+from users.models import Payment, User
+from users.serializers import PaymentSerializer, UserSerializer
 
 
 class RegisterView(FormView):
@@ -53,3 +54,13 @@ class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class PaymentListAPIView(generics.ListAPIView):
+    """Возвращает платежи с фильтрацией и сортировкой по дате."""
+
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    filterset_fields = ("paid_course", "paid_lesson", "payment_method")
+    ordering_fields = ("payment_date",)
