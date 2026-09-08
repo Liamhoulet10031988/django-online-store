@@ -4,6 +4,18 @@ from materials.models import Course, Lesson, Subscription
 from materials.validators import validate_youtube_url
 
 
+class SubscriptionRequestSerializer(serializers.Serializer):
+    """Описывает ID курса для переключения подписки."""
+
+    course_id = serializers.IntegerField(min_value=1)
+
+
+class SubscriptionResponseSerializer(serializers.Serializer):
+    """Описывает сообщение о результате переключения подписки."""
+
+    message = serializers.CharField()
+
+
 class LessonSerializer(serializers.ModelSerializer):
     """Преобразует объекты урока в JSON и обратно."""
 
@@ -26,11 +38,11 @@ class CourseSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(many=True, read_only=True)
     is_subscribed = serializers.SerializerMethodField()
 
-    def get_lessons_count(self, course):
+    def get_lessons_count(self, course) -> int:
         """Возвращает количество уроков, связанных с курсом."""
         return course.lessons.count()
 
-    def get_is_subscribed(self, course):
+    def get_is_subscribed(self, course) -> bool:
         """Проверяет подписку текущего пользователя на курс."""
         request = self.context.get("request")
         if not request or not request.user.is_authenticated:

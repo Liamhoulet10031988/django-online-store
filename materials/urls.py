@@ -7,7 +7,12 @@ from materials.views import (
     LessonRetrieveUpdateDestroyAPIView,
     SubscriptionAPIView,
 )
-from users.views import PaymentListAPIView, UserViewSet
+from users.views import (
+    PaymentCreateAPIView,
+    PaymentListAPIView,
+    PaymentStatusAPIView,
+    UserViewSet,
+)
 
 app_name = "materials"
 
@@ -31,6 +36,16 @@ urlpatterns = [
         "payments/",
         PaymentListAPIView.as_view(),
         name="payment-list",
+    ),
+    path(
+        "payments/create/",
+        PaymentCreateAPIView.as_view(),
+        name="payment-create",
+    ),
+    path(
+        "payments/<int:pk>/status/",
+        PaymentStatusAPIView.as_view(),
+        name="payment-status",
     ),
     path(
         "subscriptions/",

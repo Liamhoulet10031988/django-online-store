@@ -1,5 +1,8 @@
+from decimal import Decimal
+
 from rest_framework import serializers
 
+from materials.models import Course
 from users.models import Payment, User
 
 
@@ -8,7 +11,41 @@ class PaymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Payment
-        fields = "__all__"
+        fields = (
+            "id",
+            "user",
+            "payment_date",
+            "paid_course",
+            "paid_lesson",
+            "amount",
+            "payment_method",
+            "stripe_product_id",
+            "stripe_price_id",
+            "stripe_session_id",
+            "payment_link",
+            "stripe_session_status",
+            "payment_status",
+        )
+        read_only_fields = fields
+
+
+class PaymentCreateSerializer(serializers.Serializer):
+    """Проверяет курс и сумму для создания оплаты через Stripe."""
+
+    paid_course = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.all()
+    )
+    amount = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        min_value=Decimal("0.01"),
+    )
+
+
+class ErrorResponseSerializer(serializers.Serializer):
+    """Описывает единый JSON-ответ с сообщением об ошибке."""
+
+    detail = serializers.CharField()
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -47,10 +47,32 @@ class Payment(models.Model):
 
     PAYMENT_METHOD_CASH = "cash"
     PAYMENT_METHOD_TRANSFER = "transfer"
+    PAYMENT_METHOD_STRIPE = "stripe"
 
     PAYMENT_METHOD_CHOICES = (
         (PAYMENT_METHOD_CASH, "Наличные"),
         (PAYMENT_METHOD_TRANSFER, "Перевод на счет"),
+        (PAYMENT_METHOD_STRIPE, "Stripe"),
+    )
+
+    SESSION_STATUS_OPEN = "open"
+    SESSION_STATUS_COMPLETE = "complete"
+    SESSION_STATUS_EXPIRED = "expired"
+
+    SESSION_STATUS_CHOICES = (
+        (SESSION_STATUS_OPEN, "Открыта"),
+        (SESSION_STATUS_COMPLETE, "Завершена"),
+        (SESSION_STATUS_EXPIRED, "Истекла"),
+    )
+
+    PAYMENT_STATUS_UNPAID = "unpaid"
+    PAYMENT_STATUS_PAID = "paid"
+    PAYMENT_STATUS_NO_PAYMENT_REQUIRED = "no_payment_required"
+
+    PAYMENT_STATUS_CHOICES = (
+        (PAYMENT_STATUS_UNPAID, "Не оплачено"),
+        (PAYMENT_STATUS_PAID, "Оплачено"),
+        (PAYMENT_STATUS_NO_PAYMENT_REQUIRED, "Оплата не требуется"),
     )
 
     user = models.ForeignKey(
@@ -85,6 +107,38 @@ class Payment(models.Model):
         max_length=20,
         choices=PAYMENT_METHOD_CHOICES,
         verbose_name="Способ оплаты",
+    )
+    stripe_product_id = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="ID продукта Stripe",
+    )
+    stripe_price_id = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="ID цены Stripe",
+    )
+    stripe_session_id = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="ID сессии Stripe",
+    )
+    payment_link = models.URLField(
+        max_length=500,
+        blank=True,
+        verbose_name="Ссылка на оплату",
+    )
+    stripe_session_status = models.CharField(
+        max_length=20,
+        choices=SESSION_STATUS_CHOICES,
+        blank=True,
+        verbose_name="Статус сессии Stripe",
+    )
+    payment_status = models.CharField(
+        max_length=30,
+        choices=PAYMENT_STATUS_CHOICES,
+        default=PAYMENT_STATUS_UNPAID,
+        verbose_name="Статус оплаты",
     )
 
     def __str__(self):

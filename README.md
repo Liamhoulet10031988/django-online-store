@@ -152,6 +152,9 @@ poetry run isort --check-only .
 - Django;
 - PostgreSQL;
 - Django ORM;
+- Django REST Framework;
+- drf-spectacular;
+- Stripe API;
 - Poetry;
 - HTML5;
 - Bootstrap 5;
@@ -272,3 +275,51 @@ POST /api/subscriptions/
 
 API проверяется тестами DRF на основе `APITestCase`. Отчёт покрытия сохраняется
 в `coverage.txt`.
+
+## Документация API и оплата курсов
+
+OpenAPI-схема проекта формируется с помощью `drf-spectacular`. Swagger UI и
+Redoc доступны без JWT, но указанные в них защищённые операции по-прежнему
+требуют access-токен:
+
+```text
+http://127.0.0.1:8000/api/schema/
+http://127.0.0.1:8000/api/docs/
+http://127.0.0.1:8000/api/redoc/
+```
+
+Для Stripe используется только серверный тестовый ключ из локального `.env`.
+Добавьте свои тестовые настройки по образцу `.env.example`:
+
+```text
+STRIPE_SECRET_KEY=sk_test_your_key
+STRIPE_CURRENCY=rub
+STRIPE_SUCCESS_URL=http://127.0.0.1:8000/api/payments/?payment=success
+STRIPE_CANCEL_URL=http://127.0.0.1:8000/api/payments/?payment=cancelled
+```
+
+Создание оплаты курса:
+
+```http
+POST /api/payments/create/
+Authorization: Bearer <access-токен>
+Content-Type: application/json
+
+{
+  "paid_course": 1,
+  "amount": "1500.00"
+}
+```
+
+Приложение последовательно создаёт в Stripe продукт, цену и Checkout Session.
+Цена передаётся целым числом копеек. В локальном платеже сохраняются ID всех
+трёх объектов, ссылка на оплату и статусы Stripe.
+
+Получить актуальный статус своей оплаты и синхронизировать его с базой:
+
+```http
+GET /api/payments/<id>/status/
+Authorization: Bearer <access-токен>
+```
+
+Тесты подменяют Stripe SDK и не выполняют внешние сетевые запросы.

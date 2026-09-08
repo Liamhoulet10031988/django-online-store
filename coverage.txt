@@ -29,8 +29,8 @@ common\__init__.py                                                              
 common\forms.py                                                                     10      7    30%   11-23
 config\__init__.py                                                                   0      0   100%
 config\asgi.py                                                                       4      4     0%   10-16
-config\settings.py                                                                  39      0   100%
-config\urls.py                                                                       8      1    88%   29
+config\settings.py                                                                  44      0   100%
+config\urls.py                                                                       9      1    89%   45
 config\wsgi.py                                                                       4      4     0%   10-16
 main.py                                                                             34     34     0%   1-56
 manage.py                                                                           11      2    82%   13-14
@@ -44,11 +44,11 @@ materials\migrations\__init__.py                                                
 materials\models.py                                                                 27      3    89%   26, 57, 82
 materials\paginators.py                                                              5      0   100%
 materials\permissions.py                                                            10      0   100%
-materials\serializers.py                                                            24      1    96%   37
+materials\serializers.py                                                            28      1    96%   49
 materials\tests.py                                                                 190      0   100%
 materials\urls.py                                                                    9      0   100%
 materials\validators.py                                                              6      0   100%
-materials\views.py                                                                  70      1    99%   62
+materials\views.py                                                                  74      1    99%   68
 users\__init__.py                                                                    0      0   100%
 users\admin.py                                                                       5      0   100%
 users\apps.py                                                                        3      0   100%
@@ -56,12 +56,14 @@ users\forms.py                                                                  
 users\migrations\0001_initial.py                                                     8      0   100%
 users\migrations\0002_user_city.py                                                   4      0   100%
 users\migrations\0003_payment.py                                                     6      0   100%
+users\migrations\0004_payment_payment_link_payment_payment_status_and_more.py        4      0   100%
 users\migrations\__init__.py                                                         0      0   100%
-users\models.py                                                                     24      2    92%   42, 92
+users\models.py                                                                     39      2    95%   42, 146
 users\permissions.py                                                                 4      0   100%
-users\serializers.py                                                                33      2    94%   67, 75
-users\tests.py                                                                      74      0   100%
+users\serializers.py                                                                41      2    95%   104, 112
+users\services.py                                                                   34      6    82%   43-44, 59-60, 70-71
+users\tests.py                                                                     201      0   100%
 users\urls.py                                                                        6      0   100%
-users\views.py                                                                      50      6    88%   30-33, 37, 55
+users\views.py                                                                      86      6    93%   48-51, 55, 73
 --------------------------------------------------------------------------------------------------------------
-TOTAL                                                                             1067    127    88%
+TOTAL                                                                             1305    133    90%
