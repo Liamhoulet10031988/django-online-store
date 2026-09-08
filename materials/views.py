@@ -1,7 +1,11 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from materials.models import Course, Lesson
+from materials.models import Course, Lesson, Subscription
+from materials.paginators import MaterialsPagination
 from materials.permissions import (
     IsNotModerator,
     IsOwnerOrModerator,
@@ -13,12 +17,13 @@ from materials.serializers import CourseSerializer, LessonSerializer
 class CourseViewSet(viewsets.ModelViewSet):
     """Выполняет все CRUD-операции для курсов."""
 
-    queryset = Course.objects.all()
+    queryset = Course.objects.all().order_by("pk")
     serializer_class = CourseSerializer
+    pagination_class = MaterialsPagination
 
     def get_queryset(self):
         """Возвращает все курсы модератору и только свои остальным."""
-        queryset = Course.objects.all()
+        queryset = Course.objects.all().order_by("pk")
         if is_moderator(self.request.user):
             return queryset
         return queryset.filter(owner=self.request.user)
@@ -46,12 +51,13 @@ class CourseViewSet(viewsets.ModelViewSet):
 class LessonListCreateAPIView(generics.ListCreateAPIView):
     """Возвращает все уроки или создаёт новый урок."""
 
-    queryset = Lesson.objects.all()
+    queryset = Lesson.objects.all().order_by("pk")
     serializer_class = LessonSerializer
+    pagination_class = MaterialsPagination
 
     def get_queryset(self):
         """Возвращает все уроки модератору и только свои остальным."""
-        queryset = Lesson.objects.all()
+        queryset = Lesson.objects.all().order_by("pk")
         if is_moderator(self.request.user):
             return queryset
         return queryset.filter(owner=self.request.user)
@@ -89,3 +95,25 @@ class LessonRetrieveUpdateDestroyAPIView(
         if self.request.method == "DELETE":
             permission_classes.append(IsNotModerator)
         return [permission() for permission in permission_classes]
+
+
+class SubscriptionAPIView(APIView):
+    """Добавляет подписку на курс или удаляет существующую."""
+
+    def post(self, request):
+        user = request.user
+        course_id = request.data.get("course_id")
+        course = get_object_or_404(Course, pk=course_id)
+        subscriptions = Subscription.objects.filter(
+            user=user,
+            course=course,
+        )
+
+        if subscriptions.exists():
+            subscriptions.delete()
+            message = "Подписка удалена."
+        else:
+            Subscription.objects.create(user=user, course=course)
+            message = "Подписка добавлена."
+
+        return Response({"message": message})

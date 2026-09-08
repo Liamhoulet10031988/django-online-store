@@ -5,6 +5,7 @@ from materials.views import (
     CourseViewSet,
     LessonListCreateAPIView,
     LessonRetrieveUpdateDestroyAPIView,
+    SubscriptionAPIView,
 )
 from users.views import PaymentListAPIView, UserViewSet
 
@@ -30,5 +31,10 @@ urlpatterns = [
         "payments/",
         PaymentListAPIView.as_view(),
         name="payment-list",
+    ),
+    path(
+        "subscriptions/",
+        SubscriptionAPIView.as_view(),
+        name="subscription",
     ),
 ]
