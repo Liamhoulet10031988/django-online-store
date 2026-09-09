@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,7 +12,12 @@ from materials.permissions import (
     IsOwnerOrModerator,
     is_moderator,
 )
-from materials.serializers import CourseSerializer, LessonSerializer
+from materials.serializers import (
+    CourseSerializer,
+    LessonSerializer,
+    SubscriptionRequestSerializer,
+    SubscriptionResponseSerializer,
+)
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -100,9 +106,27 @@ class LessonRetrieveUpdateDestroyAPIView(
 class SubscriptionAPIView(APIView):
     """Добавляет подписку на курс или удаляет существующую."""
 
+    @extend_schema(
+        summary="Переключить подписку на курс",
+        description=(
+            "Создаёт подписку, если её нет, или удаляет существующую."
+        ),
+        request=SubscriptionRequestSerializer,
+        responses={
+            200: SubscriptionResponseSerializer,
+            400: OpenApiResponse(description="Некорректный ID курса."),
+            401: OpenApiResponse(
+                description="JWT не передан или недействителен."
+            ),
+            404: OpenApiResponse(description="Курс не найден."),
+        },
+        tags=["Подписки"],
+    )
     def post(self, request):
         user = request.user
-        course_id = request.data.get("course_id")
+        serializer = SubscriptionRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        course_id = serializer.validated_data["course_id"]
         course = get_object_or_404(Course, pk=course_id)
         subscriptions = Subscription.objects.filter(
             user=user,

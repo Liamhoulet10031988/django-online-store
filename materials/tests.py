@@ -238,7 +238,7 @@ class SubscriptionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(Subscription.objects.count(), 0)
 
-    def test_subscription_returns_404_without_course_id(self):
+    def test_subscription_returns_400_without_course_id(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(
             self.subscription_url,
@@ -246,7 +246,7 @@ class SubscriptionAPITestCase(APITestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_anonymous_user_cannot_change_subscription(self):
         response = self.client.post(
