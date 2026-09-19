@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -18,6 +21,7 @@ from materials.serializers import (
     SubscriptionRequestSerializer,
     SubscriptionResponseSerializer,
 )
+from materials.tasks import send_course_update_email
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -52,6 +56,14 @@ class CourseViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Назначает владельцем курса авторизованного пользователя."""
         serializer.save(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        """Обновляет курс и ставит в очередь письмо подписчикам."""
+        previous_updated_at = serializer.instance.updated_at
+        course = serializer.save()
+
+        if timezone.now() - previous_updated_at >= timedelta(hours=4):
+            send_course_update_email.delay(course.pk)
 
 
 class LessonListCreateAPIView(generics.ListCreateAPIView):
