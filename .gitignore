@@ -8,3 +8,6 @@ __pycache__/
 *.sqlite*
 media/
 .coverage
+dump.rdb
+data_backup.json
+*.log

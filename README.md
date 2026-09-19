@@ -78,6 +78,8 @@ blog/templates/blog/            - шаблоны блога
 users/templates/users/          - шаблоны регистрации, входа и профиля
 static/                         - локальные файлы Bootstrap
 media/                          - загруженные изображения, не хранится в Git
+Dockerfile                      - сборка образа Django-приложения
+docker-compose.yml              - запуск всех сервисов проекта
 manage.py                       - управление Django-проектом
 pyproject.toml                  - зависимости и настройки Poetry
 .env.example                    - безопасный пример переменных окружения
@@ -95,6 +97,9 @@ poetry install
 
 Создать `.env` по примеру `.env.example` и указать свои данные PostgreSQL и
 SMTP. Настоящие пароли не должны попадать в Git.
+
+При запуске проекта без Docker укажите в `.env` локальные адреса сервисов:
+`POSTGRES_HOST=localhost` и `REDIS_URL=redis://127.0.0.1:6379/1`.
 
 Применить миграции:
 
@@ -159,6 +164,7 @@ poetry run isort --check-only .
 - HTML5;
 - Bootstrap 5;
 - SMTP;
+- Docker и Docker Compose;
 - Git и GitHub.
 
 ## Кеширование и бизнес-логика
@@ -341,3 +347,47 @@ poetry run python manage.py runserver
 poetry run celery -A config worker -l INFO -P eventlet
 poetry run celery -A config beat -l INFO
 ```
+
+## Запуск через Docker Compose
+
+Docker Compose запускает пять сервисов:
+
+- `web` — Django-приложение;
+- `db` — база данных PostgreSQL;
+- `redis` — кеш и брокер сообщений Celery;
+- `celery_worker` — выполнение фоновых задач;
+- `celery_beat` — создание периодических задач по расписанию.
+
+Создайте `.env` по безопасному примеру:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Замените демонстрационные пароли и ключи в `.env` на собственные значения.
+Файл `.env` исключён из Git и не должен попадать в репозиторий.
+
+Соберите образы и запустите все сервисы одной командой:
+
+```powershell
+docker compose up --build
+```
+
+После запуска приложение доступно по адресу:
+
+```text
+http://localhost:8000/
+```
+
+Команды управления:
+
+```powershell
+docker compose ps
+docker compose logs
+docker compose logs web
+docker compose exec web python manage.py check
+docker compose down
+```
+
+PostgreSQL, Redis и загруженные медиафайлы используют именованные тома, поэтому
+данные сохраняются после обычного `docker compose down`.
