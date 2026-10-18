@@ -394,14 +394,20 @@ PostgreSQL, Redis и загруженные медиафайлы использ�
 
 ## CI/CD и production-запуск
 
+Приложение: https://orangepi5b.taila2acdb.ts.net/
+
+Swagger UI: https://orangepi5b.taila2acdb.ts.net/api/docs/
+
 Workflow `.github/workflows/ci.yml` при каждом push и pull request запускает
 тесты, Flake8, проверку сортировки импортов и сборку Docker-образа. После
-успешного обновления ветки `develop` образ публикуется в Docker Hub, а сервер
+успешного push в `feature/ci-cd` или `develop` образ публикуется в Docker Hub, а сервер
 получает новую версию приложения.
 
-Production-конфигурация использует Gunicorn, Nginx, PostgreSQL, Redis, Celery
+Production-конфигурация для Linux ARM64 использует Gunicorn, Nginx, PostgreSQL, Redis, Celery
 worker и Celery beat. Наружу открыт только HTTP-порт Nginx; остальные сервисы
-работают во внутренней сети Docker Compose. Переменные production-окружения
+работают во внутренней сети отдельного Compose-проекта `django-online-store`.
+По умолчанию Nginx слушает `127.0.0.1:8088`; адрес и порт задаются в `.env`.
+Домашний сервер доступен runner через Tailscale. Переменные production-окружения
 перечислены в `.env.template` без настоящих паролей и ключей.
 
 Подготовка сервера, список GitHub Secrets и проверка развёртывания описаны в

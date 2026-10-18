@@ -112,25 +112,25 @@ jobs:
 
   build:
     name: Docker image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     needs: lint
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
 
       - name: Build image for verification
-        if: github.event_name != 'push' || github.ref != 'refs/heads/develop'
+        if: github.event_name != 'push' || (github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/feature/ci-cd')
         run: docker build --tag django-online-store:${{ github.sha }} .
 
       - name: Sign in to Docker Hub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/ci-cd')
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
 
       - name: Build and publish image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/ci-cd')
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
@@ -141,9 +141,9 @@ jobs:
 
   deploy:
     name: Deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/ci-cd')
     environment: production
     env:
       SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -152,30 +152,55 @@ jobs:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
+
+      - name: Check deployment settings
+        run: |
+          for NAME in SSH_HOST SSH_USER SSH_PRIVATE_KEY SSH_KNOWN_HOSTS DOCKERHUB_USERNAME TAILSCALE_AUTHKEY DEPLOY_PATH; do
+            if [ -z "${!NAME}" ]; then
+              echo "::error::Missing deployment secret: $NAME"
+              exit 1
+            fi
+          done
+
+      - name: Connect to deployment network
+        uses: tailscale/github-action@v4
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          ping: ${{ secrets.SSH_HOST }}
 
       - name: Configure SSH
         run: |
           install -m 700 -d ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          PORT="${SSH_PORT:-22}"
-          ssh-keyscan -p "$PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Copy deployment configuration
         run: |
           PORT="${SSH_PORT:-22}"
-          TARGET="${DEPLOY_PATH:-/opt/django-online-store}"
-          ssh -p "$PORT" "$SSH_USER@$SSH_HOST" "mkdir -p '$TARGET/nginx'"
+          TARGET="$DEPLOY_PATH"
+          ssh -o BatchMode=yes -p "$PORT" "$SSH_USER@$SSH_HOST" "test -f '$TARGET/.env' && mkdir -p '$TARGET/nginx'"
           scp -P "$PORT" docker-compose.prod.yml "$SSH_USER@$SSH_HOST:$TARGET/"
           scp -P "$PORT" nginx/default.conf "$SSH_USER@$SSH_HOST:$TARGET/nginx/"
+
+      - name: Transfer published image
+        run: |
+          set -o pipefail
+          PORT="${SSH_PORT:-22}"
+          IMAGE="$DOCKERHUB_USERNAME/django-online-store:${{ github.sha }}"
+          docker pull "$IMAGE"
+          docker save "$IMAGE" | ssh -o BatchMode=yes -p "$PORT" "$SSH_USER@$SSH_HOST" "docker load"
 
       - name: Restart application
         run: |
           PORT="${SSH_PORT:-22}"
-          TARGET="${DEPLOY_PATH:-/opt/django-online-store}"
-          IMAGE="$DOCKERHUB_USERNAME/django-online-store:latest"
-          ssh -p "$PORT" "$SSH_USER@$SSH_HOST" \
-            "cd '$TARGET' && DOCKER_IMAGE='$IMAGE' docker compose -f docker-compose.prod.yml pull && DOCKER_IMAGE='$IMAGE' docker compose -f docker-compose.prod.yml up -d --remove-orphans && docker image prune -f"
+          TARGET="$DEPLOY_PATH"
+          IMAGE="$DOCKERHUB_USERNAME/django-online-store:${{ github.sha }}"
+          ssh -o BatchMode=yes -p "$PORT" "$SSH_USER@$SSH_HOST" \
+            "cd '$TARGET' && sed -i 's|^DOCKER_IMAGE=.*|DOCKER_IMAGE=$IMAGE|' .env && docker compose -f docker-compose.prod.yml up -d --pull never --wait --wait-timeout 180 && docker compose -f docker-compose.prod.yml exec -T nginx nginx -s reload && curl --fail --retry 6 --retry-connrefused --retry-delay 5 http://127.0.0.1:8088/ > /dev/null"
