@@ -3,11 +3,16 @@
 venv/
 env/
 .env
+.env.*
+!.env.example
+!.env.template
 __pycache__/
 *.py[cod]
 *.sqlite*
 media/
 .coverage
+coverage_html/
 dump.rdb
 data_backup.json
 *.log
+staticfiles/

@@ -1,0 +1,181 @@
+name: CI/CD pipeline
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  POETRY_VERSION: "2.3.3"
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: django_online_store
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d django_online_store"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      SECRET_KEY: ci-only-secret-key
+      DEBUG: "False"
+      ALLOWED_HOSTS: 127.0.0.1,localhost
+      POSTGRES_DB: django_online_store
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: "5432"
+      REDIS_URL: redis://127.0.0.1:6379/1
+      STRIPE_SECRET_KEY: sk_test_ci_placeholder
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        run: pip install "poetry==${POETRY_VERSION}"
+
+      - name: Install dependencies
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --with dev,lint --no-root --no-interaction --no-ansi
+
+      - name: Check migrations
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Apply migrations
+        run: python manage.py migrate --noinput
+
+      - name: Run tests
+        run: python manage.py test
+
+  lint:
+    name: Linters
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        run: pip install "poetry==${POETRY_VERSION}"
+
+      - name: Install dependencies
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --with lint --no-root --no-interaction --no-ansi
+
+      - name: Run Flake8
+        run: >-
+          flake8 catalog blog users common materials config
+          --exclude="*/migrations/*"
+
+      - name: Check import sorting
+        run: >-
+          isort --check-only catalog blog users common materials config
+          --skip-glob="*/migrations/*"
+
+  build:
+    name: Docker image
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Build image for verification
+        if: github.event_name != 'push' || github.ref != 'refs/heads/develop'
+        run: docker build --tag django-online-store:${{ github.sha }} .
+
+      - name: Sign in to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+
+      - name: Build and publish image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          IMAGE="$DOCKERHUB_USERNAME/django-online-store"
+          docker build --tag "$IMAGE:${{ github.sha }}" --tag "$IMAGE:latest" .
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    environment: production
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          PORT="${SSH_PORT:-22}"
+          ssh-keyscan -p "$PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Copy deployment configuration
+        run: |
+          PORT="${SSH_PORT:-22}"
+          TARGET="${DEPLOY_PATH:-/opt/django-online-store}"
+          ssh -p "$PORT" "$SSH_USER@$SSH_HOST" "mkdir -p '$TARGET/nginx'"
+          scp -P "$PORT" docker-compose.prod.yml "$SSH_USER@$SSH_HOST:$TARGET/"
+          scp -P "$PORT" nginx/default.conf "$SSH_USER@$SSH_HOST:$TARGET/nginx/"
+
+      - name: Restart application
+        run: |
+          PORT="${SSH_PORT:-22}"
+          TARGET="${DEPLOY_PATH:-/opt/django-online-store}"
+          IMAGE="$DOCKERHUB_USERNAME/django-online-store:latest"
+          ssh -p "$PORT" "$SSH_USER@$SSH_HOST" \
+            "cd '$TARGET' && DOCKER_IMAGE='$IMAGE' docker compose -f docker-compose.prod.yml pull && DOCKER_IMAGE='$IMAGE' docker compose -f docker-compose.prod.yml up -d --remove-orphans && docker image prune -f"

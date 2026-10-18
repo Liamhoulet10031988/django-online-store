@@ -391,3 +391,18 @@ docker compose down
 
 PostgreSQL, Redis и загруженные медиафайлы используют именованные тома, поэтому
 данные сохраняются после обычного `docker compose down`.
+
+## CI/CD и production-запуск
+
+Workflow `.github/workflows/ci.yml` при каждом push и pull request запускает
+тесты, Flake8, проверку сортировки импортов и сборку Docker-образа. После
+успешного обновления ветки `develop` образ публикуется в Docker Hub, а сервер
+получает новую версию приложения.
+
+Production-конфигурация использует Gunicorn, Nginx, PostgreSQL, Redis, Celery
+worker и Celery beat. Наружу открыт только HTTP-порт Nginx; остальные сервисы
+работают во внутренней сети Docker Compose. Переменные production-окружения
+перечислены в `.env.template` без настоящих паролей и ключей.
+
+Подготовка сервера, список GitHub Secrets и проверка развёртывания описаны в
+файле [DEPLOYMENT.md](DEPLOYMENT.md).
