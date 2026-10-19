@@ -21,7 +21,8 @@ dependencies = [
     "stripe (>=15.6.1,<16.0.0)",
     "celery (>=5.6.3,<6.0.0)",
     "django-celery-beat (>=2.9.0,<3.0.0)",
-    "eventlet (>=0.41.2,<0.42.0)"
+    "eventlet (>=0.41.2,<0.42.0)",
+    "gunicorn (>=23.0.0,<24.0.0)"
 ]
 
 
